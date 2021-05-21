@@ -1,29 +1,29 @@
-import serial, sys
+import serial, sys, time
 import json
 from statistics import mean
 import mariadb
 
-if len(sys.argv) == 5:
-    RACK, FLOOR, PIPE, PORT = sys.argv[1:5]
+if len(sys.argv) == 6:
+    RACK, FLOOR, PIPE1, PIPE2, PORT = sys.argv[1:6]
 else:
-    print('3 arguments required. Now:', sys.argv)
+    print('6 arguments required. Now:', sys.argv)
     sys.exit(1)
 
 SAMPLING = 60
 
-def emptyRecord():
-    records = {'temp':[], 'ec':[], 'ph':[]}
-    return(records)
+def emptyRecords():
+    record1 = {'temp':[], 'ec':[], 'ph':[], 'fr':[]}
+    return(record1)
 
-def DBwrite_water(conn, temperature, ph, ec):
+def DBwrite_water(conn, pipe, record):
     cursor = conn.cursor()
     try:
-        if ph is not None:
-            cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ph,ec) VALUES (?,?,?,?,?,?)",
-                      (RACK,FLOOR,PIPE,temperature,ph,ec))
+        if len(record['ph'])>0:
+            cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ph,ec,flowrate) VALUES (?,?,?,?,?,?,?)",
+                      (RACK,FLOOR,pipe,mean(record['temp']),ph,mean(record['ec']),mean(record['fr'])))
         else:
-            cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec) VALUES (?,?,?,?,?)",
-                      (RACK,FLOOR,PIPE,temperature,ec))
+            cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec,flowrate) VALUES (?,?,?,?,?,?)",
+                      (RACK,FLOOR,pipe,mean(record['temp']),mean(record['ec']),mean(record['fr'])))
         conn.commit()
     except:
         conn = getConnDB()
@@ -54,29 +54,44 @@ conn = getConnDB()
 T = serial.Serial(PORT,115200)
 for _ in range(10):
     T.readline()
-records = emptyRecord()
-count = 0
+record1= emptyRecords()
+record2= emptyRecords()
+count1 = 0
+count2 = SAMPLING*(-0.5)
 while True:
-    if count>SAMPLING:
-        print("Writing DB")
-        if len(records['ph'])>0:
-            conn = DBwrite_water(conn,mean(records['temp']), mean(records['ph']),mean(records['ec']))
-        else:
-            conn = DBwrite_water(conn,mean(records['temp']), None,mean(records['ec']))
-        count = 0        
-        records = emptyRecord()
+    if count1>SAMPLING:
+        print("Writing DB for PIPE1")
+        conn = DBwrite_water(conn, PIPE1, record1)
+        record1=emptyRecords()
+        count1 = 1
+    if count2>SAMPLING:
+        print("Writing DB for PIPE2")
+        conn = DBwrite_water(conn, PIPE2, record2)
+        record2=emptyRecords()
+        count2 = 1
+        
         
 
     output = T.readline().decode('ascii')
+    print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        print(data)
-        records['temp'].append(data['Temp'])
+        
+        record1['temp'].append(data['Temp'])
+        record2['temp'].append(data['Temp'])
         try:
-            records['ph'].append(data['pH'])
+            record1['ph'].append(data['pH1'])
         except KeyError:
             pass
-        records['ec'].append(data['EC'])
-    count+=1
+        try:
+            record2['ph'].append(data['pH2'])
+        except KeyError:
+            pass        
+        record1['ec'].append(data['EC1'])
+        record2['ec'].append(data['EC2'])
+        record1['fr'].append(data['Flow1'])
+        record2['fr'].append(data['Flow2'])
+    count1+=1
+    count2+=1
     # print(count)
     
