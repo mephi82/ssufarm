@@ -74,9 +74,9 @@ void loop()
         voltagePH = analogRead(PH_PIN)/1024.0*5000;          // read the ph voltage
         phValue    = ph.readPH(voltagePH,temperature);       // convert voltage to pH with temperature compensation
         voltageEC1 = analogRead(EC_PIN1)/1024.0*5000;
-        ecValue1    = 0.25+ec.readEC(voltageEC1,temperature);       // convert voltage to EC with temperature compensation
+        ecValue1    = 0.3+ec.readEC(voltageEC1,temperature);       // convert voltage to EC with temperature compensation
         voltageEC2 = analogRead(EC_PIN2)/1024.0*5000;
-        ecValue2    = 0.25+ec.readEC(voltageEC2,temperature);       // convert voltage to EC with temperature compensation
+        ecValue2    = 0.3+ec.readEC(voltageEC2,temperature);       // convert voltage to EC with temperature compensation
 
         Serial.print("{\"Temp\":");
         Serial.print(temperature,1);

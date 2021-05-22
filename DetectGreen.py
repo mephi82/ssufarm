@@ -31,10 +31,10 @@ cv2_dir = os.path.dirname(os.path.abspath(cv2.__file__))
 haar_model = os.path.join(cv2_dir, 'data/haarcascade_frontalface_default.xml')
 
 camera = PiCamera()
-camera.resolution = (1024, 768)
+camera.resolution = (672, 512)
 # camera.resolution = (1440, 1080)
 camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(1024, 768))
+rawCapture = PiRGBArray(camera, size=(672, 512))
 # rawCapture = PiRGBArray(camera, size=(1440, 1080))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -100,8 +100,8 @@ def detectGreen(camera, rawCapture):
         
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 #         gray = cv2.equalizeHist(gray)
-    lower_green = np.array([25,52,10])
-    upper_green = np.array([102,255,255])
+    lower_green = np.array([25,52,40])
+    upper_green = np.array([102,255,200])
     mask = cv2.inRange(hsv, lower_green, upper_green)
     
 #         green = cv2.bitwise_and(img, img, mask = mask)
