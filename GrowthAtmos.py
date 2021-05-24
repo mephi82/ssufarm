@@ -165,7 +165,7 @@ while True:
         capcount = 0
     
 
-
+    print(logcount)
     if logcount>SAMPLING:
         print("Writing DB")
         try:
