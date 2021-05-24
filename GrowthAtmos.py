@@ -134,7 +134,7 @@ while True:
 
     if capcount%3600==0:
         imgpath = 'images/'
-        imgname = 'img_'+RACK+FLOOR+PIPE+POT+str(int(time.time()*1000.0))
+        imgname = 'img_'+RACK+FLOOR+PIPE+POT+str(int(time.time()*1000.0))+'.jpg'
         cv2.imwrite(imgname, img)
         imgurl = '/web/livfarm/'+imgname
         try:
