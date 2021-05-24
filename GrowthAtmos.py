@@ -7,6 +7,7 @@ import smbus
 import Adafruit_DHT
 import mariadb
 import paramiko
+from misc import trc_mean
 
 host = '220.149.87.248'
 transport = paramiko.transport.Transport(host,22)
@@ -90,7 +91,7 @@ def detectGreen(camera, rawCapture):
             bbox = cv2.boundingRect(contpoly)
             (x, y), radius = cv2.minEnclosingCircle(contpoly)
             
-            cv2.putText(img, "{0:0} width:{1:0} height:{2:0} rad:{3:0}".format(maxArea,bbox[2],bbox[3],radius), (bbox[0],bbox[1]), font, 1, (0,255,255))
+            cv2.putText(img, "{0:0}\nwidth:{1:0} height:{2:0}\nrad:{3:0}".format(maxArea,bbox[2],bbox[3],radius), (bbox[0],bbox[1]-50), font, 1, (0,255,255))
             cv2.rectangle(img, (bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,255),2)
             maxArea = area
     
@@ -109,23 +110,42 @@ def DBwrite_atmos(cursor, brightness, temperature, humidity):
                   (RACK,FLOOR,PIPE,POT,brightness))
 
 
-def DBwrite_growth(cursor, pixels, bx, by, radius):
-    cursor.execute("INSERT INTO `growth.tab` (rack,floor,pipe,pot,pixels,bbx,bby,radius) VALUES (?,?,?,?,?,?,?,?)",
-                  (RACK,FLOOR,PIPE,POT,pixels,bx,by,radius))
+def DBwrite_growth(cursor, pixels, bx, by, radius,imgname):
+    cursor.execute("INSERT INTO `growth.tab` (rack,floor,pipe,pot,pixels,bbx,bby,radius) VALUES (?,?,?,?,?,?,?,?,?)",
+                  (RACK,FLOOR,PIPE,POT,pixels,bx,by,radius,imgname))
+
+def emptyGrowth():
+    record1 = {'pixels':[], 'bx':[], 'by':[], 'radius':[]}
+    return(record1)
+
+def emptyAtmos():
+    record1 = {'brightness':[], 'temperature':[], 'humidity':[]}
+    return(record1)
+    
 
 SAMPLING = 60
 logcount = 1
 capcount = 0
+recGrowth = emptyGrowth()
+recAtmos = emptyAtmos()
 while True:
     
     img, pixels, bx, by, radius = detectGreen(camera, rawCapture)
+    recGrowth['pixels'].append(pixels)
+    recGrowth['bx'].append(bx)
+    recGrowth['by'].append(by)
+    recGrowth['radius'].append(radius)
+
     lux = senseBH1750()
     hum, temp = Adafruit_DHT.read(Adafruit_DHT.DHT11, DHT_GPIO)
+    recAtmos['brightness'].append(lux)
 
     if sys.argv[5] == 'show':
         writeOnImg(img, 'Light={0:0} lux'.format(lux), (50,50))
         if temp is not None:
             writeOnImg(img, 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temp, hum), (50,100))
+            recAtmos['temperature'].append(temp)
+            recAtmos['humidity'].append(hum)
         else:
             writeOnImg(img, "Failed to read", (50,100))        
         cv2.imshow("Frame"+' '.join(sys.argv), img)
@@ -134,10 +154,10 @@ while True:
 
     if capcount%3600==0:
         imgpath = r'/home/pi/ssufarm/images'
-        imgname = 'img_'+RACK+FLOOR+PIPE+POT+str(int(time.time()*1000.0))+'.jpg'
+        imgname = 'img_'+RACK+FLOOR+PIPE+POT+'_'+str(int(time.time()*1000.0))+'.jpg'
         os.chdir(imgpath)
         cv2.imwrite(imgname, img)
-        print(imgpath+imgname)
+        print('Saving image:', imgpath+'/'+imgname)
         imgurl = '/web/livfarm/'+imgname
         try:
             transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
@@ -147,11 +167,13 @@ while True:
             sftp.close()
 
         capcount = 0
+    
+
 
     if logcount>SAMPLING:
         try:
-            DBwrite_atmos(cur,lux, temp, hum)
-            DBwrite_growth(cur,pixels,bx,by,radius)
+            DBwrite_atmos(cur,trc_mean(lux), trc_mean(temp), trc_mean(hum))
+            DBwrite_growth(cur,trc_mean(pixels),trc_mean(bx),trc_mean(by),trc_mean(radius),imgname)
         except:
             print(f"Error: {e}")
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
