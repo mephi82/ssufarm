@@ -46,9 +46,9 @@ CONT_H_RES = 0x10
 ONETIME_H_RES = 0x20
 
 camera = PiCamera()
-camera.resolution = (1024, 768)
+camera.resolution = (672, 512)
 camera.framerate = 32
-rawCapture = PiRGBArray(camera, size=(1024, 768))
+rawCapture = PiRGBArray(camera, size=(672, 512))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
 time.sleep(0.1)
@@ -142,7 +142,7 @@ while True:
         try:
             transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
             sftp = paramiko.SFTPClient.from_transport(transport)
-            sftp.put(imgpath+imgname, imgurl)
+            sftp.put(imgpath+'/'+imgname, imgurl)
         finally:
             sftp.close()
 
