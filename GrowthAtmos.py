@@ -170,7 +170,7 @@ while True:
     now = time.time()
     # print(logcount)
     if (now-logcount)>=100:
-        print("Writing DB", len(recGrowth['pixels']))
+        print("Writing DB", len(recAtmos['temperature']))
         try:
             DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
             DBwrite_growth(cur,trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
