@@ -119,7 +119,7 @@ def emptyAtmos():
     return(record1)
     
 
-SAMPLING = 10
+SAMPLING = 5
 logcount = 1
 capcount = 0
 recGrowth = emptyGrowth()
@@ -175,7 +175,7 @@ while True:
             print(f"Error: {e}")
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
             conn.commit()
-        count = 0
+        logcount = 0
         recGrowth = emptyGrowth()
         recAtmos = emptyAtmos()
 
