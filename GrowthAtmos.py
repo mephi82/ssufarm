@@ -133,9 +133,10 @@ while True:
         print(pixels, temp, hum)
 
     if capcount%3600==0:
-        imgpath = '/images/'
+        imgpath = r'/home/pi/ssufarm/images'
         imgname = 'img_'+RACK+FLOOR+PIPE+POT+str(int(time.time()*1000.0))+'.jpg'
-        cv2.imwrite(imgpath+imgname, img)
+        os.chdir(imgpath)
+        cv2.imwrite(imgname, img)
         print(imgpath+imgname)
         imgurl = '/web/livfarm/'+imgname
         try:
