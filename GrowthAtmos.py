@@ -166,7 +166,7 @@ while True:
     
 
     print(logcount)
-    if logcount>SAMPLING:
+    if logcount>=SAMPLING:
         print("Writing DB")
         try:
             DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
@@ -182,7 +182,7 @@ while True:
     logcount+=1
     capcount+=1
         
-    time.sleep(1)        
+    time.sleep(0.5)        
     key = cv2.waitKey(1) & 0xFF
     
     # clear the stream in preparation for the next frame
