@@ -174,13 +174,15 @@ while True:
     if logcount>SAMPLING:
         print("Writing DB")
         try:
-            DBwrite_atmos(cur,trc_mean(lux), trc_mean(temp), trc_mean(hum))
-            DBwrite_growth(cur,trc_mean(pixels),trc_mean(bx),trc_mean(by),trc_mean(radius),imgname)
+            DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
+            DBwrite_growth(cur,trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
         except e:
             print(f"Error: {e}")
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
             conn.commit()
         count = 0
+        recGrowth = emptyGrowth()
+        recAtmos = emptyAtmos()
 
     logcount+=1
     capcount+=1
