@@ -176,7 +176,7 @@ while True:
         try:
             DBwrite_atmos(cur,trc_mean(lux), trc_mean(temp), trc_mean(hum))
             DBwrite_growth(cur,trc_mean(pixels),trc_mean(bx),trc_mean(by),trc_mean(radius),imgname)
-        except:
+        except e:
             print(f"Error: {e}")
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
             conn.commit()
