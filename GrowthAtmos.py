@@ -71,7 +71,7 @@ def detectGreen(camera, rawCapture):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     lower_green = np.array([25,52,10])
-    upper_green = np.array([102,255,150])
+    upper_green = np.array([102,255,255])
     mask = cv2.inRange(hsv, lower_green, upper_green)
     
     kernel = np.ones((5,5), 'int')
@@ -82,7 +82,7 @@ def detectGreen(camera, rawCapture):
     ret, threshold = cv2.threshold(cv2.cvtColor(res, cv2.COLOR_BGR2GRAY), 3,255,cv2.THRESH_BINARY)
     contours, hier = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
-    maxArea = 4000
+    maxArea = 5000
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area > maxArea:
@@ -96,7 +96,7 @@ def detectGreen(camera, rawCapture):
             cv2.rectangle(img, (bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,255),2)
             maxArea = area
     
-    if maxArea>4000:
+    if maxArea>5000:
         return(img, maxArea, bbox[2], bbox[3], radius)
     else:
         return(img, None, None, None, None)
@@ -169,8 +169,8 @@ while True:
     
     now = time.time()
     # print(logcount)
-    if (now-logcount)>=60:
-        print("Writing DB")
+    if (now-logcount)>=100:
+        print("Writing DB", len(recGrowth['pixels']))
         try:
             DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
             DBwrite_growth(cur,trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
