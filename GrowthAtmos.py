@@ -103,16 +103,11 @@ def detectGreen(camera, rawCapture):
 
 
 def DBwrite_atmos(cursor, brightness, temperature, humidity):
-    if temperature is not None:
-        cursor.execute("INSERT INTO `atmos.tab` (rack,floor,pipe,pot,brightness,temperature,humidity) VALUES (?,?,?,?,?,?,?)",
+    cursor.execute("INSERT INTO `atmos.tab` (rack,floor,pipe,pot,brightness,temperature,humidity) VALUES (?,?,?,?,?,?,?)",
                   (RACK,FLOOR,PIPE,POT,brightness,temperature,humidity))
-    else:
-        cursor.execute("INSERT INTO `atmos.tab` (rack,floor,pipe,pot,brightness) VALUES (?,?,?,?,?)",
-                  (RACK,FLOOR,PIPE,POT,brightness))
-
-
+    
 def DBwrite_growth(cursor, pixels, bx, by, radius,imgname):
-    cursor.execute("INSERT INTO `growth.tab` (rack,floor,pipe,pot,pixels,bbx,bby,radius) VALUES (?,?,?,?,?,?,?,?,?)",
+    cursor.execute("INSERT INTO `growth.tab` (rack,floor,pipe,pot,pixels,bbx,bby,radius,imgfile) VALUES (?,?,?,?,?,?,?,?,?)",
                   (RACK,FLOOR,PIPE,POT,pixels,bx,by,radius,imgname))
 
 def emptyGrowth():
@@ -176,7 +171,7 @@ while True:
         try:
             DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
             DBwrite_growth(cur,trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
-        except e:
+        except Exception as e:
             print(f"Error: {e}")
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
             conn.commit()
