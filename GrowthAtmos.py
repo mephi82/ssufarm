@@ -6,8 +6,7 @@ import numpy as np
 import smbus
 import Adafruit_DHT
 import mariadb
-
-​import paramiko
+import paramiko
 
 host = '220.149.87.248'
 transport = paramiko.transport.Transport(host,22)
