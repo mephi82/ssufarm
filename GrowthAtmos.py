@@ -165,7 +165,7 @@ while True:
             sftp.close()
 
         capcount = now
-        # doOnce = False
+        doOnce = False
     
     now = time.time()
     # print(logcount)
