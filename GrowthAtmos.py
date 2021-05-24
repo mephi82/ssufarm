@@ -11,7 +11,7 @@ from misc import trc_mean
 
 host = '220.149.87.248'
 transport = paramiko.transport.Transport(host,22)
-
+transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
 
 DHT_GPIO, I2C_CH, BH_DEV_ADDR = (4,1,0x23)
 
@@ -120,8 +120,9 @@ def emptyAtmos():
     
 
 SAMPLING = 50
-logcount = time.time()
-capcount = time.time()
+now = time.time()
+logcount = now
+capcount = now
 recGrowth = emptyGrowth()
 recAtmos = emptyAtmos()
 doOnce = True
@@ -136,13 +137,13 @@ while True:
     lux = senseBH1750()
     hum, temp = Adafruit_DHT.read(Adafruit_DHT.DHT11, DHT_GPIO)
     recAtmos['brightness'].append(lux)
+    recAtmos['temperature'].append(temp)
+    recAtmos['humidity'].append(hum)
 
     if sys.argv[5] == 'show':
         writeOnImg(img, 'Light={0:0} lux'.format(lux), (50,50))
         if temp is not None:
             writeOnImg(img, 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temp, hum), (50,100))
-            recAtmos['temperature'].append(temp)
-            recAtmos['humidity'].append(hum)
         else:
             writeOnImg(img, "Failed to read", (50,100))        
         cv2.imshow("Frame"+' '.join(sys.argv), img)
@@ -158,18 +159,17 @@ while True:
         print('Saving image:', imgpath+'/'+imgname)
         imgurl = '/web/livfarm/'+imgname
         try:
-            transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
             sftp = paramiko.SFTPClient.from_transport(transport)
             sftp.put(imgpath+'/'+imgname, imgurl)
         finally:
             sftp.close()
 
         capcount = now
-        doOnce = False
+        # doOnce = False
     
     now = time.time()
     # print(logcount)
-    if (now-logcount)>=100:
+    if (now-logcount)>60:
         print("Writing DB", len(recAtmos['temperature']))
         try:
             DBwrite_atmos(cur,trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
@@ -185,7 +185,7 @@ while True:
         recAtmos = emptyAtmos()
 
         
-    time.sleep(0.5)        
+    time.sleep(0.1)        
     key = cv2.waitKey(1) & 0xFF
     
     # clear the stream in preparation for the next frame
