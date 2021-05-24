@@ -7,6 +7,12 @@ import smbus
 import Adafruit_DHT
 import mariadb
 
+​import paramiko
+
+host = '220.149.87.248'
+transport = paramiko.transport.Transport(host,22)
+
+
 DHT_GPIO, I2C_CH, BH_DEV_ADDR = (4,1,0x23)
 
 if len(sys.argv) == 6:
@@ -51,15 +57,6 @@ time.sleep(0.1)
 def writeOnImg(img, text, origin):
     cv2.putText(img, text, origin, font, 1, (255,255,0))
 
-# def senseDHT(gpio):
-#     humidity, temperature = Adafruit_DHT.read(Adafruit_DHT.DHT11, gpio)
-#     if temperature is not None:
-#         return(temperature, humidity)
-#     else:
-#         return None
-#         return('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
-#     else:
-#         return('Fail to read DHT')
 def senseBH1750():
     luxBytes = i2c.read_i2c_block_data(BH_DEV_ADDR, CONT_H_RES, 2)
     lux = int.from_bytes(luxBytes, byteorder = 'big')
@@ -117,6 +114,9 @@ def DBwrite_growth(cursor, pixels, bx, by, radius):
     cursor.execute("INSERT INTO `growth.tab` (rack,floor,pipe,pot,pixels,bbx,bby,radius) VALUES (?,?,?,?,?,?,?,?)",
                   (RACK,FLOOR,PIPE,POT,pixels,bx,by,radius))
 
+SAMPLING = 60
+logcount = 1
+capcount = 0
 while True:
     
     img, pixels, bx, by, radius = detectGreen(camera, rawCapture)
@@ -129,18 +129,36 @@ while True:
             writeOnImg(img, 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temp, hum), (50,100))
         else:
             writeOnImg(img, "Failed to read", (50,100))        
-        cv2.imshow("Frame", img)
+        cv2.imshow("Frame"+' '.join(sys.argv), img)
     else:
         print(pixels, temp, hum)
 
-    try:
-        DBwrite_atmos(cur,lux, temp, hum)
-        DBwrite_growth(cur,pixels,bx,by,radius)
-    except:
-        print(f"Error: {e}")
-    if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
-        conn.commit()
+    if capcount%3600==0:
+        imgpath = 'images/'
+        imgname = 'img_'+RACK+FLOOR+PIPE+POT+str(int(time.time()*1000.0))
+        cv2.imwrite(imgname, img)
+        imgurl = '/web/livfarm/'+imgname
+        try:
+            transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
+            sftp = paramiko.SFTPClient.from_transport(transport)
+            sftp.put(imgpath+imgname, imgurl)
+        finally:
+            sftp.close()
 
+        capcount = 0
+
+    if logcount>SAMPLING:
+        try:
+            DBwrite_atmos(cur,lux, temp, hum)
+            DBwrite_growth(cur,pixels,bx,by,radius)
+        except:
+            print(f"Error: {e}")
+        if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
+            conn.commit()
+        count = 0
+
+    logcount+=1
+    capcount+=1
         
     time.sleep(1)        
     key = cv2.waitKey(1) & 0xFF
@@ -154,3 +172,4 @@ while True:
 
 conn.close()
 cv2.destroyAllWindows()    
+transport.close()

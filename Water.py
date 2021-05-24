@@ -1,7 +1,8 @@
 import serial, sys, time
 import json
-from statistics import mean
+
 import mariadb
+from misc import trc_mean
 
 if len(sys.argv) == 6:
     RACK, FLOOR, PIPE1, PIPE2, PORT = sys.argv[1:6]
@@ -20,10 +21,10 @@ def DBwrite_water(conn, pipe, record):
     try:
         if len(record['ph'])>0:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ph,ec,flowrate) VALUES (?,?,?,?,?,?,?)",
-                      (RACK,FLOOR,pipe,mean(record['temp']),ph,mean(record['ec']),mean(record['fr'])))
+                      (RACK,FLOOR,pipe,trc_mean(record['temp']),ph,trc_mean(record['ec']),trc_mean(record['fr'])))
         else:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec,flowrate) VALUES (?,?,?,?,?,?)",
-                      (RACK,FLOOR,pipe,mean(record['temp']),mean(record['ec']),mean(record['fr'])))
+                      (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ec']),trc_mean(record['fr'])))
         conn.commit()
     except:
         conn = getConnDB()
