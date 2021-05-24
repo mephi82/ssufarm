@@ -91,7 +91,8 @@ def detectGreen(camera, rawCapture):
             bbox = cv2.boundingRect(contpoly)
             (x, y), radius = cv2.minEnclosingCircle(contpoly)
             
-            cv2.putText(img, "{0:0}\nwidth:{1:0} height:{2:0}\nrad:{3:0}".format(maxArea,bbox[2],bbox[3],radius), (bbox[0],bbox[1]-50), font, 1, (0,255,255))
+            # cv2.putText(img, "{0:0}\nwidth:{1:0} height:{2:0}\nrad:{3:0}".format(maxArea,bbox[2],bbox[3],radius), (bbox[0],bbox[1]-50), font, 1, (0,255,255))
+            cv2.putText(img, "{0:0}".format(maxArea), (bbox[0],bbox[1]), font, 1, (0,255,255))
             cv2.rectangle(img, (bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,255),2)
             maxArea = area
     
@@ -123,7 +124,7 @@ def emptyAtmos():
     return(record1)
     
 
-SAMPLING = 60
+SAMPLING = 10
 logcount = 1
 capcount = 0
 recGrowth = emptyGrowth()
@@ -171,6 +172,7 @@ while True:
 
 
     if logcount>SAMPLING:
+        print("Writing DB")
         try:
             DBwrite_atmos(cur,trc_mean(lux), trc_mean(temp), trc_mean(hum))
             DBwrite_growth(cur,trc_mean(pixels),trc_mean(bx),trc_mean(by),trc_mean(radius),imgname)
