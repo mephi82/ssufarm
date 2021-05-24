@@ -176,6 +176,8 @@ while True:
             DBwrite_growth(cur,trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
         except Exception as e:
             print(f"Error: {e}")
+            print(trc_mean(recAtmos['brightness']), trc_mean(recAtmos['temperature']), trc_mean(recAtmos['humidity']))
+            print(trc_mean(recGrowth['pixels']),trc_mean(recGrowth['bx']),trc_mean(recGrowth['by']),trc_mean(recGrowth['radius']),imgname)
         if sys.argv[5] == 'show' or sys.argv[5] == 'commit':
             conn.commit()
         logcount = 0
