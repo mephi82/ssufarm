@@ -119,11 +119,12 @@ def emptyAtmos():
     return(record1)
     
 
-SAMPLING = 5
+SAMPLING = 50
 logcount = 1
-capcount = 0
+capcount = time.time()
 recGrowth = emptyGrowth()
 recAtmos = emptyAtmos()
+doOnce = True
 while True:
     
     img, pixels, bx, by, radius = detectGreen(camera, rawCapture)
@@ -148,9 +149,10 @@ while True:
     else:
         print(pixels, temp, hum)
 
-    if capcount%3600==0:
+    now = time.time()
+    if (now-capcount)>3600 or doOnce:
         imgpath = r'/home/pi/ssufarm/images'
-        imgname = 'img_'+RACK+FLOOR+PIPE+POT+'_'+str(int(time.time()*1000.0))+'.jpg'
+        imgname = 'img_'+RACK+FLOOR+PIPE+POT+'_'+str(int(now*1000.0))+'.jpg'
         os.chdir(imgpath)
         cv2.imwrite(imgname, img)
         print('Saving image:', imgpath+'/'+imgname)
@@ -162,10 +164,11 @@ while True:
         finally:
             sftp.close()
 
-        capcount = 0
+        capcount = now
+        doOnce = False
     
 
-    print(logcount)
+    # print(logcount)
     if logcount>=SAMPLING:
         print("Writing DB")
         try:
