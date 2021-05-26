@@ -153,7 +153,7 @@ while True:
     now = time.time()
     if (now-capcount)>3600 or doOnce:
         imgpath = r'/home/pi/ssufarm/images'
-        imgname = 'img_'+RACK+FLOOR+PIPE+POT+'_'+str(int(now*1000.0))+'.gif'
+        imgname = 'img_'+RACK+FLOOR+PIPE+POT+'_'+str(int(now*1000.0))+'.jpg'
         os.chdir(imgpath)
         cv2.imwrite(imgname, img)
         print('Saving image:', imgpath+'/'+imgname)
