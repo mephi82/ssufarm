@@ -15,7 +15,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature. 
 DallasTemperature sensors(&oneWire);
 
-float  voltagePH,voltageEC1,voltageEC2,phValue,ecValue1,ecValue2,temperature = 27;
+float  voltagePH,voltageEC1,voltageEC2,phValue,ecValue1,ecValue2,temperature = 25;
 volatile int flow_frequency1, flow_frequency2; // Measures flow sensor pulses
 unsigned int l_hour1, l_hour2; // Calculated litres/hour
 unsigned char flowsensor1 = 2; // Sensor Input

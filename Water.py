@@ -45,7 +45,7 @@ def getConnDB():
     except mariadb.Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")
         sys.exit(1)
-    return(conn);
+    return(conn)
 
 
 # Get Cursor
@@ -77,7 +77,8 @@ while True:
     print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        
+        data = {'Temp':22.8, 'EC1':1.944, 'EC2':1.410, 'Flow1':64, 'Flow2':64, 'pH1':6.5, 'pH2':6.62}
+
         record1['temp'].append(data['Temp'])
         record2['temp'].append(data['Temp'])
         try:
