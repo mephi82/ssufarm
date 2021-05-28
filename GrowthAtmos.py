@@ -50,7 +50,7 @@ camera = PiCamera()
 camera.resolution = (672, 512)
 camera.framerate = 32
 camera.brightness = 55
-camera.contrast = -20
+camera.contrast = 20
 camera.sharpness = 100
 camera.image_effect = 'colorpoint'
 
@@ -76,7 +76,7 @@ def detectGreen(camera, rawCapture):
         
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    lower_green = np.array([25,52,20])
+    lower_green = np.array([25,52,0])
     upper_green = np.array([102,255,255])
     mask = cv2.inRange(hsv, lower_green, upper_green)
     
