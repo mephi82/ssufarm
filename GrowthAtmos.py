@@ -49,8 +49,9 @@ ONETIME_H_RES = 0x20
 camera = PiCamera()
 camera.resolution = (672, 512)
 camera.framerate = 32
-camera.brightness = 55
+camera.brightness = 60
 camera.contrast = 10
+camera.sharpness = 50
 camera.image_effect = 'colorpoint'
 
 # camera.exposure_mode = 'nightpreview'
