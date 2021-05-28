@@ -49,8 +49,8 @@ ONETIME_H_RES = 0x20
 camera = PiCamera()
 camera.resolution = (672, 512)
 camera.framerate = 32
-# camera.brightness = 70
-camera.exposure_mode = 'nightpreview'
+camera.brightness = 55
+# camera.exposure_mode = 'nightpreview'
 rawCapture = PiRGBArray(camera, size=(672, 512))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
