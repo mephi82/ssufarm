@@ -21,7 +21,7 @@ def DBwrite_water(conn, pipe, record):
     try:
         if len(record['ph'])>0:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ph,ec,flowrate) VALUES (?,?,?,?,?,?,?)",
-                      (RACK,FLOOR,pipe,trc_mean(record['temp']),ph,trc_mean(record['ec']),trc_mean(record['fr'])))
+                      (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ph']),trc_mean(record['ec']),trc_mean(record['fr'])))
         else:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec,flowrate) VALUES (?,?,?,?,?,?)",
                       (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ec']),trc_mean(record['fr'])))
@@ -77,7 +77,7 @@ while True:
     print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        data = {'Temp':22.8, 'EC1':1.944, 'EC2':1.410, 'Flow1':64, 'Flow2':64, 'pH1':6.5, 'pH2':6.62}
+        data = {'Temp':20.0, 'EC1':1.893, 'EC2':1.512, 'Flow1':64, 'Flow2':64, 'pH1':6.5, 'pH2':6.62}
 
         record1['temp'].append(data['Temp'])
         record2['temp'].append(data['Temp'])
