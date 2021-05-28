@@ -49,8 +49,8 @@ ONETIME_H_RES = 0x20
 camera = PiCamera()
 camera.resolution = (672, 512)
 camera.framerate = 32
-camera.brightness = 60
-camera.contrast = 10
+camera.brightness = 70
+# camera.contrast = 10
 camera.sharpness = 50
 camera.image_effect = 'colorpoint'
 
@@ -76,7 +76,7 @@ def detectGreen(camera, rawCapture):
         
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    lower_green = np.array([25,52,10])
+    lower_green = np.array([25,52,50])
     upper_green = np.array([102,255,255])
     mask = cv2.inRange(hsv, lower_green, upper_green)
     
