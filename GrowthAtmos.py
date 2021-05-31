@@ -54,7 +54,7 @@ camera.contrast = 20
 camera.sharpness = 100
 camera.image_effect = 'colorpoint'
 
-camera.exposure_mode = 'spotlight'
+camera.exposure_mode = 'night'
 rawCapture = PiRGBArray(camera, size=(672, 512))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
