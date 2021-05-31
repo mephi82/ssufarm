@@ -23,8 +23,8 @@ else:
 
 try:
     conn = mariadb.connect(
-        user="root",
-        password="!Gkrrhkwkd0690",
+        user="farmer",
+        password="!SSUfarm0690",
         host="220.149.87.248",
         port=3307,
         database="livfarm"
@@ -54,7 +54,7 @@ camera.contrast = 20
 camera.sharpness = 100
 camera.image_effect = 'colorpoint'
 
-# camera.exposure_mode = 'nightpreview'
+camera.exposure_mode = 'spotlight'
 rawCapture = PiRGBArray(camera, size=(672, 512))
 font = cv2.FONT_HERSHEY_SIMPLEX
 

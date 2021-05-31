@@ -35,8 +35,8 @@ def getConnDB():
     conn= None
     try:
         conn = mariadb.connect(
-            user="root",
-            password="!Gkrrhkwkd0690",
+            user="farmer",
+            password="!SSUfarm0690",
             host="220.149.87.248",
             port=3307,
             database="livfarm"
@@ -77,7 +77,7 @@ while True:
     print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        data = {'Temp':20.0, 'EC1':1.893, 'EC2':1.512, 'Flow1':64, 'Flow2':64, 'pH1':6.5, 'pH2':6.62}
+        data = {'Temp':25.0, 'EC1':1.784, 'EC2':1.343, 'Flow1':64, 'Flow2':64, 'pH1':6.82, 'pH2':6.93}
 
         record1['temp'].append(data['Temp'])
         record2['temp'].append(data['Temp'])
