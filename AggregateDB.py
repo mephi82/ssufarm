@@ -9,8 +9,8 @@ def getConnDB():
     conn= None
     try:
         conn = mariadb.connect(
-            user="root",
-            password="!Gkrrhkwkd0690",
+            user="farmer",
+            password="!SSUfarm0690",
             host="220.149.87.248",
             port=3307,
             database="livfarm"
@@ -73,12 +73,24 @@ def drawPlots(df, ylabel, site, rack, floor, pipe, pot, darkdrop=10000):
 # %%
 # Get Cursor
 conn = getConnDB()
+<<<<<<< HEAD
 df = getAggTable(conn, "2021-05-25 00:00:00", "2021-06-27 15:00:00", 10)
+=======
+df = getAggTable(conn, "2021-05-28 00:00:00", "2021-06-27 15:00:00", 1)
+>>>>>>> 658e6785e821f1923a952a9d9247e12f8bd760d5
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
 
 # %%
 # drawPlots(df,'bright','SSU',1,3,2,2)
+<<<<<<< HEAD
 df_sub = drawPlots(df,'bx','SSU',1,3,3,2,20000)
 df_sub = drawPlots(df,'bright','SSU',1,3,3,2,20000)
+=======
+drawPlots(df,'pixels','SSU',1,3,2,2,10000)
+drawPlots(df,'bright','SSU',1,3,2,2,10000)
+
+drawPlots(df,'pixels','SSU',1,3,3,2,10000)
+drawPlots(df,'bright','SSU',1,3,3,2,10000)
+>>>>>>> 658e6785e821f1923a952a9d9247e12f8bd760d5
 # %%

@@ -23,8 +23,8 @@ else:
 
 try:
     conn = mariadb.connect(
-        user="root",
-        password="!Gkrrhkwkd0690",
+        user="farmer",
+        password="!SSUfarm0690",
         host="220.149.87.248",
         port=3307,
         database="livfarm"
@@ -49,6 +49,12 @@ ONETIME_H_RES = 0x20
 camera = PiCamera()
 camera.resolution = (672, 512)
 camera.framerate = 32
+camera.brightness = 55
+camera.contrast = 10
+camera.sharpness = 100
+camera.image_effect = 'colorpoint'
+
+camera.exposure_mode = 'night'
 rawCapture = PiRGBArray(camera, size=(672, 512))
 font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -70,7 +76,7 @@ def detectGreen(camera, rawCapture):
         
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    lower_green = np.array([25,52,10])
+    lower_green = np.array([25,52,0])
     upper_green = np.array([102,255,255])
     mask = cv2.inRange(hsv, lower_green, upper_green)
     

@@ -21,7 +21,7 @@ def DBwrite_water(conn, pipe, record):
     try:
         if len(record['ph'])>0:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ph,ec,flowrate) VALUES (?,?,?,?,?,?,?)",
-                      (RACK,FLOOR,pipe,trc_mean(record['temp']),ph,trc_mean(record['ec']),trc_mean(record['fr'])))
+                      (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ph']),trc_mean(record['ec']),trc_mean(record['fr'])))
         else:
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec,flowrate) VALUES (?,?,?,?,?,?)",
                       (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ec']),trc_mean(record['fr'])))
@@ -35,8 +35,8 @@ def getConnDB():
     conn= None
     try:
         conn = mariadb.connect(
-            user="root",
-            password="!Gkrrhkwkd0690",
+            user="farmer",
+            password="!SSUfarm0690",
             host="220.149.87.248",
             port=3307,
             database="livfarm"
@@ -77,7 +77,7 @@ while True:
     print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        data = {'Temp':22.8, 'EC1':1.944, 'EC2':1.410, 'Flow1':64, 'Flow2':64, 'pH1':6.5, 'pH2':6.62}
+        data = {'Temp':25.0, 'EC1':1.784, 'EC2':1.343, 'Flow1':64, 'Flow2':64, 'pH1':6.82, 'pH2':6.93}
 
         record1['temp'].append(data['Temp'])
         record2['temp'].append(data['Temp'])
