@@ -73,11 +73,10 @@ def drawPlots(df, ylabel, site, rack, floor, pipe, pot, darkdrop=10000):
 # %%
 # Get Cursor
 conn = getConnDB()
-<<<<<<< HEAD
+# <<<<<<< HEAD
 df = getAggTable(conn, "2021-05-25 00:00:00", "2021-06-27 15:00:00", 10)
 =======
 df = getAggTable(conn, "2021-05-28 00:00:00", "2021-06-27 15:00:00", 1)
->>>>>>> 658e6785e821f1923a952a9d9247e12f8bd760d5
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
 
