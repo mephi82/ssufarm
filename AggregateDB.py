@@ -57,26 +57,28 @@ def drawPlots(df, ylabel, site, rack, floor, pipe, pot, darkdrop=10000):
     subset = df_idx.loc[site, rack, floor, pipe, pot].copy()#.reset_index()
     
     subset = subset.loc[subset['bright']>darkdrop].copy()
-
+    
     plt.plot(subset['timestamp'], subset[ylabel])
 
     ax = plt.gca()
     xfmt = md.DateFormatter('%d/%H')
     ax.xaxis.set_major_formatter(xfmt)
-    # ax.set_xlim(min(df['timestamp']), max(df['timestamp']))
+    ax.set_xlim(min(df['timestamp']), max(df['timestamp']))
     # plt.xticks(rotation=25)
     plt.title(ylabel+':'+'/'.join(map(str,[rack, floor, pipe, pot])))
     plt.show()
 
+    return(subset)
+
 # %%
 # Get Cursor
 conn = getConnDB()
-df = getAggTable(conn, "2021-05-25 00:00:00", "2021-06-27 15:00:00", 1)
+df = getAggTable(conn, "2021-05-25 00:00:00", "2021-06-27 15:00:00", 10)
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
 
 # %%
 # drawPlots(df,'bright','SSU',1,3,2,2)
-drawPlots(df,'bx','SSU',1,3,2,2,20000)
-drawPlots(df,'bright','SSU',1,3,2,2,20000)
+df_sub = drawPlots(df,'bx','SSU',1,3,3,2,20000)
+df_sub = drawPlots(df,'bright','SSU',1,3,3,2,20000)
 # %%
