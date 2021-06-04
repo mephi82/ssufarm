@@ -151,7 +151,10 @@ while True:
     recAtmos['humidity'].append(hum)
 
     if sys.argv[5] == 'show':
-        writeOnImg(img, 'Light={0:0} lux'.format(lux), (50,50))
+        if lux is not None:
+            writeOnImg(img, 'Light={0:0} lux'.format(lux), (50,50))
+        else:
+            writeOnImg(img, "Failed to read", (50,50))        
         if temp is not None:
             writeOnImg(img, 'Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temp, hum), (50,100))
         else:
