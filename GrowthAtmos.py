@@ -102,7 +102,7 @@ def detectGreen(camera, rawCapture):
             (x, y), radius = cv2.minEnclosingCircle(contpoly)
             
             # cv2.putText(img, "{0:0}\nwidth:{1:0} height:{2:0}\nrad:{3:0}".format(maxArea,bbox[2],bbox[3],radius), (bbox[0],bbox[1]-50), font, 1, (0,255,255))
-            cv2.putText(img, "{0:0}".format(area), (bbox[0],bbox[1]), font, 1, (0,200,200))
+            cv2.putText(img, "{0:0}".format(area), (bbox[0],bbox[1]), font, 1, (0,255,255))
             cv2.rectangle(img, (bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,255),2)
             maxArea = area
     
