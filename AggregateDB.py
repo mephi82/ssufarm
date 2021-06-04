@@ -52,44 +52,56 @@ def getAggTable(conn, start, end, interval = 10):
     df_gaw = pd.merge(df_ga, df_water.drop(columns=['floor']), on=['timestamp','site','rack','pipe'], how='left')
     return(df_gaw)
 
-def drawPlots(df, ylabel, site, rack, floor, pipe, pot, darkdrop=10000):
-    df_idx = df.set_index(['site','rack','floor','pipe','pot'])
-    subset = df_idx.loc[site, rack, floor, pipe, pot].copy()#.reset_index()
-    
-    subset = subset.loc[subset['bright']>darkdrop].copy()
-    
-    plt.plot(subset['timestamp'], subset[ylabel])
+def drawPlots(subset, ylabel, ax):
 
-    ax = plt.gca()
+    ax.plot(subset['timestamp'], subset[ylabel])
     xfmt = md.DateFormatter('%d/%H')
     ax.xaxis.set_major_formatter(xfmt)
-    ax.set_xlim(min(df['timestamp']), max(df['timestamp']))
+    # ax.set_xlim(min(df['timestamp']), max(df['timestamp']))
     # plt.xticks(rotation=25)
-    plt.title(ylabel+':'+'/'.join(map(str,[rack, floor, pipe, pot])))
-    plt.show()
+    # plt.title(ylabel+':'+'/'.join(map(str,[rack, floor, pipe, pot])))
+    # plt.show()
 
-    return(subset)
+    # return(subset)
+
+def drawMultiPlots(dfs, ylabels, darkdrops):
+    
+    
+    fig, axs = plt.subplots(len(ylabels),len(dfs))
+    # print(axs.size)
+    fig.set_size_inches(6*len(dfs), 12)
+    # fig.suptitle('/'.join(map(str,df_idx.index[0])))
+    for j, df in enumerate(dfs):
+        subset = df[df['bright']>darkdrops[j]].copy()
+        axs[0,j].set_title('/'.join(map(str,subset.index[0])))
+        for i, label in enumerate(ylabels):
+            drawPlots(subset, label, axs[i,j])
+
+
+
 
 # %%
 # Get Cursor
 conn = getConnDB()
-# <<<<<<< HEAD
-df = getAggTable(conn, "2021-05-25 00:00:00", "2021-06-27 15:00:00", 10)
-=======
-df = getAggTable(conn, "2021-05-28 00:00:00", "2021-06-27 15:00:00", 1)
+
+# df = getAggTable(conn, "2021-05-27 00:00:00", "2021-06-27 15:00:00", 1)
+df = getAggTable(conn, "2021-06-03 00:00:00", "2021-06-27 15:00:00", 1)
+
+df_idx = df.set_index(['site','rack','floor','pipe','pot']).sort_index()
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
+#%%
+
+df_todraw = (df_idx.loc['SSU', 1, 3, 2, 2],df_idx.loc['SSU', 1, 3, 3, 2],df_idx.loc['SSU', 1, 2, 3, 4])
+# df_todraw = (df_idx.loc['SSU', 1, 2, 4, 9])
+drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (000,000,000))
+# drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (9000))
+
+
+# df_sub = drawPlots(df,'bx','SSU',1,3,3,2,20000)
+# df_sub = drawPlots(df,'bright','SSU',1,3,3,2,20000)
+# # %%
 
 # %%
-# drawPlots(df,'bright','SSU',1,3,2,2)
-<<<<<<< HEAD
-df_sub = drawPlots(df,'bx','SSU',1,3,3,2,20000)
-df_sub = drawPlots(df,'bright','SSU',1,3,3,2,20000)
-=======
-drawPlots(df,'pixels','SSU',1,3,2,2,10000)
-drawPlots(df,'bright','SSU',1,3,2,2,10000)
 
-drawPlots(df,'pixels','SSU',1,3,3,2,10000)
-drawPlots(df,'bright','SSU',1,3,3,2,10000)
->>>>>>> 658e6785e821f1923a952a9d9247e12f8bd760d5
 # %%
