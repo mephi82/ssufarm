@@ -77,7 +77,7 @@ while True:
     print(output.strip())
     if output.startswith('{'):
         data = json.loads(output)
-        data = {'Temp':25.0, 'EC1':1.784, 'EC2':1.343, 'Flow1':64, 'Flow2':64, 'pH1':6.82, 'pH2':6.93}
+        data = {'Temp':20.0, 'EC1':2.620, 'EC2':0.586, 'Flow1':64, 'Flow2':64, 'pH1':5.96, 'pH2':6.96}
 
         record1['temp'].append(data['Temp'])
         record2['temp'].append(data['Temp'])
