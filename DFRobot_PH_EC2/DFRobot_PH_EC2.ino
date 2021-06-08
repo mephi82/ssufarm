@@ -7,7 +7,7 @@
 
 #define PH_PIN A2
 #define EC_PIN1 A1
-#define EC_PIN2 A2
+#define EC_PIN2 A3
 #define ONE_WIRE_BUS 4
 #define KVALUEADDR 0x0A
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -40,10 +40,10 @@ void setup()
     ph.begin();
     ec.begin();
     sensors.begin();
-//    for(byte i = 0;i< 8; i++   ){
-//      EEPROM.write(KVALUEADDR+i, 0xFF);
-//    }
-//    Serial.println(EEPROM.read(KVALUEADDR));
+    for(byte i = 0;i< 8; i++   ){
+      EEPROM.write(KVALUEADDR+i, 0xFF);
+    }
+    Serial.println(EEPROM.read(KVALUEADDR));
     pinMode(flowsensor1, INPUT);
     digitalWrite(flowsensor1, HIGH); // Optional Internal Pull-Up
     attachInterrupt(digitalPinToInterrupt(flowsensor1), flow1, RISING);
