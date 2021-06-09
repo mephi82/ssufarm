@@ -81,20 +81,26 @@ def drawMultiPlots(dfs, ylabels, darkdrops):
 
 
 # %%
+# batch records
+# 5.25~6.1 1차
+# 6.2~6.8 2차
+# 6.9.12~ 3차
 # Get Cursor
 conn = getConnDB()
 
 # df = getAggTable(conn, "2021-05-27 00:00:00", "2021-06-27 15:00:00", 1)
 df = getAggTable(conn, "2021-06-03 00:00:00", "2021-06-27 15:00:00", 1)
 
-df_idx = df.set_index(['site','rack','floor','pipe','pot']).sort_index()
+df_idx = df.set_index(['site','rack','floor','pipe'
+,'pot']).sort_index()
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
 #%%
 
-df_todraw = (df_idx.loc['SSU', 1, 3, 2, 2],df_idx.loc['SSU', 1, 3, 3, 2],df_idx.loc['SSU', 1, 2, 3, 4])
+
+df_todraw = (df_idx.loc['SSU', 1, 3, 2, 2],df_idx.loc['SSU', 1, 3, 3, 2],df_idx.loc['SSU', 1, 2, 2, 4],df_idx.loc['SSU', 1, 2, 3, 4])
 # df_todraw = (df_idx.loc['SSU', 1, 2, 4, 9])
-drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (000,000,000))
+drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (15000,15000,15000,15000))
 # drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (9000))
 
 
