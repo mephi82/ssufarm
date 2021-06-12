@@ -89,7 +89,7 @@ def drawMultiPlots(dfs, ylabels, darkdrops):
 conn = getConnDB()
 
 # df = getAggTable(conn, "2021-05-27 00:00:00", "2021-06-27 15:00:00", 1)
-df = getAggTable(conn, "2021-06-03 00:00:00", "2021-06-27 15:00:00", 1)
+df = getAggTable(conn, "2021-06-09 12:00:00", "2021-06-27 15:00:00", 1)
 
 df_idx = df.set_index(['site','rack','floor','pipe'
 ,'pot']).sort_index()
@@ -98,9 +98,9 @@ conn.close()
 #%%
 
 
-df_todraw = (df_idx.loc['SSU', 1, 3, 2, 2],df_idx.loc['SSU', 1, 3, 3, 2],df_idx.loc['SSU', 1, 2, 2, 4],df_idx.loc['SSU', 1, 2, 3, 4])
+df_todraw = (df_idx.loc['SSU', 1, 3, 2, 3],df_idx.loc['SSU', 1, 3, 3, 3],df_idx.loc['SSU', 1, 2, 2, 4],df_idx.loc['SSU', 1, 2, 3, 4])
 # df_todraw = (df_idx.loc['SSU', 1, 2, 4, 9])
-drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (15000,15000,15000,15000))
+drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (18000,18000,18000,18000))
 # drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (9000))
 
 

@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <ArduinoJson.h>
 
 #define PH_PIN A2
 #define EC_PIN1 A1
@@ -15,7 +16,7 @@ OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature. 
 DallasTemperature sensors(&oneWire);
 
-float  voltagePH,voltageEC1,voltageEC2,phValue,ecValue1,ecValue2,temperature = 25;
+float  voltagePH,voltageEC1,voltageEC2,phValue,ecValue1,ecValue2,temperature = 23;
 volatile int flow_frequency1, flow_frequency2; // Measures flow sensor pulses
 unsigned int l_hour1, l_hour2; // Calculated litres/hour
 unsigned char flowsensor1 = 2; // Sensor Input
@@ -60,6 +61,7 @@ void setup()
 void loop()
 {
     char cmd[10];
+    StaticJsonDocument<200> doc;
     static unsigned long timepoint = millis();
 //    Serial.println(flow_frequency1);
 //    Serial.println(flow_frequency2);
@@ -85,8 +87,8 @@ void loop()
         Serial.print(", \"EC2\":");
         Serial.print(ecValue2,2);
 //        Serial.println("ms/cm");
-//        Serial.print("pH:");
-//        Serial.print(phValue,2);
+        Serial.print(", \"pH2\":");
+        Serial.print(phValue,2);
         
 //        Serial.print(", \"Voltage\":'");
 //        Serial.print(voltageEC1,1);
@@ -99,35 +101,31 @@ void loop()
         Serial.print(l_hour2, DEC);
         Serial.println("}");
     }
-//    if(readSerial(cmd)){
-//        strupr(cmd);
-//        if(strstr(cmd,"PH")){
-//            ph.calibration(voltagePH,temperature,cmd);       //PH calibration process by Serail CMD
-//        }
-//        if(strstr(cmd,"EC")){
-//            ec.calibration(voltageEC,temperature,cmd);       //EC calibration process by Serail CMD
-//        }
-//    }
+    if(readSerial(cmd)){
+        DeserializationError error = deserializeJson(doc, cmd);
+        temperature = doc["Temp"];
+    }
+    
 }
 //
-//int i = 0;
-//bool readSerial(char result[]){
-//    while(Serial.available() > 0){
-//        char inChar = Serial.read();
-//        if(inChar == '\n'){
-//             result[i] = '\0';
-//             Serial.flush();
-//             i=0;
-//             return true;
-//        }
-//        if(inChar != '\r'){
-//             result[i] = inChar;
-//             i++;
-//        }
-//        delay(1);
-//    }
-//    return false;
-//}
+int i = 0;
+bool readSerial(char result[]){
+    while(Serial.available() > 0){
+        char inChar = Serial.read();
+        if(inChar == '\n'){
+             result[i] = '\0';
+             Serial.flush();
+             i=0;
+             return true;
+        }
+        if(inChar != '\r'){
+             result[i] = inChar;
+             i++;
+        }
+        delay(1);
+    }
+    return false;
+}
 
 float readTemperature(float oldtemp)
 {

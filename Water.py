@@ -4,13 +4,14 @@ import json
 import mariadb
 from misc import trc_mean
 
-if len(sys.argv) == 6:
-    RACK, FLOOR, PIPE1, PIPE2, PORT = sys.argv[1:6]
+if len(sys.argv) == 7:
+    RACK, FLOOR, PIPE1, PIPE2, PORT1, PORT2 = sys.argv[1:7]
 else:
     print('6 arguments required. Now:', sys.argv)
     sys.exit(1)
 
 SAMPLING = 60
+temperature = 23
 
 def emptyRecords():
     record1 = {'temp':[], 'ec':[], 'ph':[], 'fr':[]}
@@ -26,7 +27,8 @@ def DBwrite_water(conn, pipe, record):
             cursor.execute("INSERT INTO `water.tab` (rack,floor,pipe,temperature,ec,flowrate) VALUES (?,?,?,?,?,?)",
                       (RACK,FLOOR,pipe,trc_mean(record['temp']),trc_mean(record['ec']),trc_mean(record['fr'])))
         conn.commit()
-    except:
+    except Exception as e:
+        print(e, record)
         conn = getConnDB()
         
     return(conn)
@@ -52,9 +54,11 @@ def getConnDB():
 conn = getConnDB()
 
 
-T = serial.Serial(PORT,115200)
+T = serial.Serial(PORT1,115200)
+S = serial.Serial(PORT2,115200)
 for _ in range(10):
     T.readline()
+    S.readline()
 record1= emptyRecords()
 record2= emptyRecords()
 count1 = 0
@@ -65,6 +69,11 @@ while True:
         conn = DBwrite_water(conn, PIPE1, record1)
         record1=emptyRecords()
         count1 = 1
+        output2 = S.readline().decode('ascii')
+        if output2.startswith('{'):
+            data = json.loads(output2)
+            temperature = data['Temp']
+        T.write(("{Temp:"+str(temperature)+"}\n").encode('utf-8'))
     if count2>SAMPLING:
         print("Writing DB for PIPE2")
         conn = DBwrite_water(conn, PIPE2, record2)
@@ -72,16 +81,24 @@ while True:
         count2 = 1
         
         
-
+    # T.write(("{Temp:"+str(temperature)+"}").encode('utf-8'))
     output = T.readline().decode('ascii')
+    
     print(output.strip())
+    
     if output.startswith('{'):
         data = json.loads(output)
         # data['EC2'] = data['EC2'] - 1.0
-        data = {'Temp':24.1, 'EC1':2.220, 'EC2':0.624, 'Flow1':64, 'Flow2':64, 'pH1':5.9, 'pH2':7.2}
+        # data = {'Temp':22.4, 'EC1':2.320, 'EC2':0.586, 'Flow1':64, 'Flow2':64, 'pH1':3.9, 'pH2':6.9}
+        data['pH1'] = 6.82
+        data['pH2'] = 7.55
+        data['Flow1'] = 72
+        data['Flow2'] = 72
 
-        record1['temp'].append(data['Temp'])
-        record2['temp'].append(data['Temp'])
+        # record1['temp'].append(data['Temp'])
+        # record2['temp'].append(data['Temp'])
+        record1['temp'].append(temperature)
+        record2['temp'].append(temperature)
         try:
             record1['ph'].append(data['pH1'])
         except KeyError:
