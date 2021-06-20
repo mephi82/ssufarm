@@ -71,8 +71,11 @@ while True:
         count1 = 1
         output2 = S.readline().decode('ascii')
         if output2.startswith('{'):
-            data = json.loads(output2)
-            temperature = data['Temp']
+            try:
+                data = json.loads(output2)
+                temperature = data['Temp']
+            except Exception as e:
+                print(e)
         T.write(("{Temp:"+str(temperature)+"}\n").encode('utf-8'))
     if count2>SAMPLING:
         print("Writing DB for PIPE2")
@@ -90,8 +93,10 @@ while True:
         data = json.loads(output)
         # data['EC2'] = data['EC2'] - 1.0
         # data = {'Temp':22.4, 'EC1':2.320, 'EC2':0.586, 'Flow1':64, 'Flow2':64, 'pH1':3.9, 'pH2':6.9}
-        data['pH1'] = 6.82
-        data['pH2'] = 7.55
+        # data['EC1'] = 2.6
+        # data['EC2'] = 5.33
+        data['pH1'] = 6.6
+        data['pH2'] = 6.9
         data['Flow1'] = 72
         data['Flow2'] = 72
 
