@@ -52,6 +52,7 @@ def getAggTable(conn, start, end, interval = 10):
     df_gaw = pd.merge(df_ga, df_water.drop(columns=['floor']), on=['timestamp','site','rack','pipe'], how='left')
     return(df_gaw)
 
+
 def drawPlots(subset, ylabel, ax):
 
     ax.plot(subset['timestamp'], subset[ylabel])
@@ -77,14 +78,26 @@ def drawMultiPlots(dfs, ylabels, darkdrops):
         for i, label in enumerate(ylabels):
             drawPlots(subset, label, axs[i,j])
 
+def getStagedData(dfa, interval = '12H', rampup = '10min', brightp = 15000):
+    df = dfa.reset_index(drop=True)
+    startT = min(df['timestamp'])+pd.Timedelta(rampup)
+    stages = pd.date_range(start = startT,end  = max(df['timestamp']), freq=interval)
+    df_staged = df[df['timestamp'].isin(stages)]
+    r_growth = df_staged[['pixels','bx','by','radius']].pct_change()[2:]
+    avg_env = df.groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).mean()
+    on_time = df[['timestamp','bright']].groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).agg(lambda x: sum(x>brightp))
+    # return(r_growth)
+    # return(pd.DataFrame([stages[2:],r_growth]))
+    return(pd.concat([r_growth,avg_env,on_time], axis=1))
+
 
 
 
 # %%
 # batch records
 # 5.25~6.1 1차
-# 6.2~6.8 2차
-# 6.9.12~ 3차
+# 6.2~6.8 2차 3시간/9시간
+# 6.9.12~ 3차 2시간/8시간
 # Get Cursor
 conn = getConnDB()
 
