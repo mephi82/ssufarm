@@ -3,7 +3,9 @@ import mariadb, sys, datetime
 import matplotlib.pyplot as plt 
 import matplotlib.dates as md
 import pandas as pd
+import numpy as np
 from misc import trc_mean
+from sklearn.linear_model import LinearRegression
 
 def getConnDB():
     conn= None
@@ -78,17 +80,21 @@ def drawMultiPlots(dfs, ylabels, darkdrops):
         for i, label in enumerate(ylabels):
             drawPlots(subset, label, axs[i,j])
 
-def getStagedData(dfa, interval = '12H', rampup = '10min', brightp = 15000):
+def getStagedData(dfa, interval = '24H', rampup = '60min', brightp = 15000):
     df = dfa.reset_index(drop=True)
     startT = min(df['timestamp'])+pd.Timedelta(rampup)
     stages = pd.date_range(start = startT,end  = max(df['timestamp']), freq=interval)
+    
     df_staged = df[df['timestamp'].isin(stages)]
-    r_growth = df_staged[['pixels','bx','by','radius']].pct_change()[2:]
-    avg_env = df.groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).mean()
-    on_time = df[['timestamp','bright']].groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).agg(lambda x: sum(x>brightp))
-    # return(r_growth)
+    # print(df_staged)
+    r_growth = df_staged[['pixels','bx','by','radius']].pct_change()[1:]
+    r_growth['timestamp'] = df_staged['timestamp'][:(len(r_growth.index)-1)]
+    avg_env = df[['timestamp','temp_a','humid','temp_w','ec','ph','bright']].groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).mean()[1:]
+    on_time = df[['timestamp','bright']].groupby([pd.Grouper(key='timestamp', freq='12H', origin=startT)]).agg(lambda x: sum(x>brightp))[1:]
+    # return(r_growth, avg_env,on_time)
+    return(r_growth.merge(avg_env, on='timestamp').merge(on_time, on='timestamp'))
     # return(pd.DataFrame([stages[2:],r_growth]))
-    return(pd.concat([r_growth,avg_env,on_time], axis=1))
+    # return(pd.concat([r_growth.reset_index(drop=True),avg_env,on_time], axis=1))
 
 
 
@@ -97,17 +103,26 @@ def getStagedData(dfa, interval = '12H', rampup = '10min', brightp = 15000):
 # batch records
 # 5.25~6.1 1차
 # 6.2~6.8 2차 3시간/9시간
-# 6.9.12~ 3차 2시간/8시간
+# 6.9.12~ 6.21 3차 2시간/8시간
 # Get Cursor
 conn = getConnDB()
 
 # df = getAggTable(conn, "2021-05-27 00:00:00", "2021-06-27 15:00:00", 1)
-df = getAggTable(conn, "2021-06-09 12:00:00", "2021-06-27 15:00:00", 1)
+df1 = getAggTable(conn, "2021-06-09 12:00:00", "2021-06-19 14:00:00", 10)
+df_idx1 = df1.set_index(['site','rack','floor','pipe','pot']).sort_index()
 
-df_idx = df.set_index(['site','rack','floor','pipe'
-,'pot']).sort_index()
+df2 = getAggTable(conn, "2021-06-02 12:00:00", "2021-06-08 14:00:00", 10)
+df_idx2 = df2.set_index(['site','rack','floor','pipe','pot']).sort_index()
+
+df3 = getAggTable(conn, "2021-05-26 12:00:00", "2021-06-01 14:00:00", 10)
+df_idx3 = df3.set_index(['site','rack','floor','pipe','pot']).sort_index()
 # drawPlots(df,'pixels','SSU',1,3,2,2)
 conn.close()
+#%%
+exp_data = pd.concat([getStagedData(df_idx1.loc['SSU', 1, 3, 2, 3]),getStagedData(df_idx1.loc['SSU', 1, 3, 3, 3]),getStagedData(df_idx1.loc['SSU', 1, 2, 2, 4]),getStagedData(df_idx1.loc['SSU', 1, 2, 3, 4])])
+exp_data = pd.concat([exp_data,getStagedData(df_idx2.loc['SSU', 1, 3, 2, 2]),getStagedData(df_idx2.loc['SSU', 1, 3, 3, 2]),getStagedData(df_idx2.loc['SSU', 1, 2, 2, 4]),getStagedData(df_idx2.loc['SSU', 1, 2, 3, 4])])
+# exp_data = pd.concat([exp_data,getStagedData(df_idx1.loc['SSU', 1, 3, 2, 2]),getStagedData(df_idx1.loc['SSU', 1, 3, 3, 2]),getStagedData(df_idx1.loc['SSU', 1, 2, 1, 9]),getStagedData(df_idx1.loc['SSU', 1, 2, 4, 9])])
+# exp_data = pd.concat([getStagedData(df_idx.loc['SSU', 1, 2, 2, 4]),getStagedData(df_idx.loc['SSU', 1, 2, 3, 4])])
 #%%
 
 
@@ -115,12 +130,26 @@ df_todraw = (df_idx.loc['SSU', 1, 3, 2, 3],df_idx.loc['SSU', 1, 3, 3, 3],df_idx.
 # df_todraw = (df_idx.loc['SSU', 1, 2, 4, 9])
 drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (18000,18000,18000,18000))
 # drawMultiPlots(df_todraw,['pixels','bright','humid','ec'], (9000))
+fig = plt.figure()
 
 
 # df_sub = drawPlots(df,'bx','SSU',1,3,3,2,20000)
 # df_sub = drawPlots(df,'bright','SSU',1,3,3,2,20000)
-# # %%
+# %%
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
 
+ax.plot((df_idx.loc['SSU', 1, 2, 2, 4])['timestamp'],(df_idx.loc['SSU', 1, 2, 2, 4])['pixels'], color='tab:blue')
+ax.plot((df_idx.loc['SSU', 1, 2, 3, 4])['timestamp'],(df_idx.loc['SSU', 1, 2, 3, 4])['pixels'], color='tab:orange')
+
+# %%
+
+exp_data = exp_data.dropna()
+line_fitter = LinearRegression()
+line_fitter.fit(exp_data['bright_y'].values.reshape(-1,1), exp_data['pixels'])
+plt.scatter(exp_data['bright_y'], exp_data['pixels'])
+X= np.arange(0,60,1)
+plt.plot(X,line_fitter.predict(X.reshape(-1,1)))
 # %%
 
 # %%
