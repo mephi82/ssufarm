@@ -89,7 +89,7 @@ def getStagedData(dfa, interval = '24H', rampup = '60min', brightp = 15000, lag 
     df_staged = df[df['timestamp'].isin(stages)]
     # print(df_staged)
 
-    r_growth = df_staged[['pixels','bx','by','radius']].pct_change().shift(-1)
+    r_growth = df_staged[['pixels','bx','by','radius']].diff().shift(-1)
     r_growth.columns = ['pct_pixels','pct_bx','pct_by','pct_radius']
     df_staged = pd.concat([df_staged[['timestamp','pixels','bx','by','radius']],r_growth],axis=1)
 
@@ -125,7 +125,7 @@ df1.loc[df1['bright']>20000,'bright']=20000
 df_idx1 = df1.set_index(['site','rack','floor','pipe','pot']).sort_index()
 
 
-df2 = getAggTable(conn, "2021-06-03 00:00:00", "2021-06-08 14:00:00", 10)
+df2 = getAggTable(conn, "2021-06-03 12:00:00", "2021-06-08 14:00:00", 10)
 df2.loc[df2['bright']>20000,'bright']=20000
 df_idx2 = df2.set_index(['site','rack','floor','pipe','pot']).sort_index()
 
@@ -149,8 +149,8 @@ fig = plt.figure()
 
 # %%
 #%%
-itv = '48H'
-l = 0
+itv = '60H'
+l = 1
 exp_data = pd.concat([getStagedData(df_idx1.loc['SSU', 1, 3, 2, 3], interval=itv, lag=l),getStagedData(df_idx1.loc['SSU', 1, 3, 3, 3], interval=itv, lag=l),getStagedData(df_idx1.loc['SSU', 1, 2, 2, 4], interval=itv, lag=l),getStagedData(df_idx1.loc['SSU', 1, 2, 3, 4], interval=itv, lag=l)])
 #%%
 exp_data = pd.concat([exp_data,getStagedData(df_idx2.loc['SSU', 1, 3, 2, 2], interval=itv, lag=l),getStagedData(df_idx2.loc['SSU', 1, 3, 3, 2], interval=itv, lag=l),getStagedData(df_idx2.loc['SSU', 1, 2, 2, 4], interval=itv, lag=l),getStagedData(df_idx2.loc['SSU', 1, 2, 3, 4], interval=itv, lag=l)])
@@ -161,10 +161,19 @@ exp_data = exp_data.dropna()
 exp_data = exp_data[stats.zscore(exp_data['pct_pixels'])<2]
 exp_data['bright_y*ec'] = exp_data['bright_y']*exp_data['ec']
 exp_data['bright_y*temp_a'] = exp_data['bright_y']*exp_data['temp_a']
-line_fitter = LinearRegression()
-X=stats.zscore(exp_data[['pixels','bright_y','temp_a','ec','bright_y*temp_a']])
+exp_data['temp_a*ec'] = exp_data['ec']*exp_data['temp_a']
+
+
+
+# X=stats.zscore(exp_data[['pixels','bright_y','temp_a','ec']])
+X=stats.zscore(exp_data[['bright_y','temp_a','ec']])
 # X=stats.zscore(exp_data[['bright_y']])
 y=exp_data['pct_pixels']
+# pixel_fitter = LinearRegression()
+# pixel_fitter.fit(exp_data['pixels'].values.reshape(-1,1), y)
+# y=y-pixel_fitter.predict(exp_data['pixels'].values.reshape(-1,1))
+
+line_fitter = LinearRegression()
 line_fitter.fit(X, y)
 print(line_fitter.score(X,y))
 # plt.scatter(exp_data['bright_x'], exp_data['pixels'])
@@ -172,13 +181,13 @@ print(line_fitter.score(X,y))
 plt.scatter(line_fitter.predict(X),y)
 plt.plot(y,y)
 
-# %%
+   # %%
 
 # %%
 fig, ax = plt.subplots(2,2)
 
-ax[0,0].scatter(X['pixels'], y)
-ax[0,1].scatter(X['temp_w'], y)
+ax[0,0].scatter(exp_data['pixels'], y)
+ax[0,1].scatter(X['bright_y'], y)
 ax[1,0].scatter(X['temp_a'], y)
 ax[1,1].scatter(X['ec'], y)
 
@@ -192,3 +201,4 @@ exp_data['bright_b']=[exp_data['bright_y']>0]
 model = ols('value ~ C(Genotype) + C(years) + C(Genotype):C(years)', data=exp_data).fit()
 anova_table = sm.stats.anova_lm(model, typ=2)
 # %%
+
