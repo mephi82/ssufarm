@@ -11,7 +11,7 @@ else:
     sys.exit(1)
 
 SAMPLING = 60
-temperature = 23
+temperature = 23.0
 
 def emptyRecords():
     record1 = {'temp':[], 'ec':[], 'ph':[], 'fr':[]}
