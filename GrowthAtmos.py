@@ -77,7 +77,9 @@ def senseBH1750():
 def detectGreen(camera, rawCapture):
     camera.capture(rawCapture, format="bgr", use_video_port=True)
     img = rawCapture.array
-        
+
+    cv2.line(img, (0, int(img.shape[0]/2)), (img.shape[1], int(img.shape[0]/2)), (255, 255, 1000), 1, 1)
+
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     lower_green = np.array([25,52,0])
