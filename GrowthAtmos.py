@@ -79,6 +79,7 @@ def detectGreen(camera, rawCapture):
     img = rawCapture.array
 
     cv2.line(img, (0, int(img.shape[0]/2)), (img.shape[1], int(img.shape[0]/2)), (255, 255, 1000), 1, 1)
+    cv2.line(img, (int(img.shape[1]/2), 0),(int(img.shape[1]/2), img.shape[0]), (255, 255, 1000), 1, 1)
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
