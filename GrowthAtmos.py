@@ -9,6 +9,7 @@ import mariadb
 import paramiko
 from misc import trc_mean
 
+MINAREA = 3500
 host = '220.149.87.248'
 transport = paramiko.transport.Transport(host,22)
 transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
@@ -95,7 +96,7 @@ def detectGreen(camera, rawCapture):
     ret, threshold = cv2.threshold(cv2.cvtColor(res, cv2.COLOR_BGR2GRAY), 3,255,cv2.THRESH_BINARY)
     contours, hier = cv2.findContours(threshold, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
-    maxArea = 5000
+    maxArea = MINAREA
     for cnt in contours:
         area = cv2.contourArea(cnt)
         if area > maxArea:
@@ -109,7 +110,7 @@ def detectGreen(camera, rawCapture):
             cv2.rectangle(img, (bbox[0],bbox[1]),(bbox[0]+bbox[2],bbox[1]+bbox[3]),(0,255,255),2)
             maxArea = area
     
-    if maxArea>5000:
+    if maxArea>MINAREA:
         return(img, maxArea, bbox[2], bbox[3], radius)
     else:
         return(img, None, None, None, None)
