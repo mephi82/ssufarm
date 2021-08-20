@@ -40,7 +40,7 @@ def getConnDB():
             user="farmer",
             password="!SSUfarm0690",
             host="220.149.87.248",
-            port=3307,
+            port=8307,
             database="livfarm"
 
         )
