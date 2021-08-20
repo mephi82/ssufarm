@@ -9,7 +9,7 @@ import mariadb
 import paramiko
 from misc import trc_mean
 
-MINAREA = 3500
+MINAREA = 4000
 host = '220.149.87.248'
 transport = paramiko.transport.Transport(host,22)
 transport.connect(username = 'hod', password = 'gkrrhkwkd0690')
